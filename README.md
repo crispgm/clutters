@@ -1,3 +1,3 @@
-# scripts-n-snippets
+# Code Clutters
 
-Scripts &amp; Snippets
+Utility programs, scripts &amp; snippets
