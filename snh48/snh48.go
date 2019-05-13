@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/blevesearch/bleve"
 )
@@ -62,7 +64,6 @@ var (
 
 func main() {
 	flag.BoolVar(&gen, "gen", false, "-gen: Default false")
-	flag.StringVar(&query, "abbr", "sss", "-abbr: Search by abbr")
 	flag.Parse()
 
 	var memberList MemberList
@@ -95,15 +96,20 @@ func main() {
 	}
 
 	index, _ := bleve.Open("member48.bleve")
-	query := bleve.NewQueryStringQuery(query)
-	searchRequest := bleve.NewSearchRequest(query)
-	searchResult, _ := index.Search(searchRequest)
-	if searchResult.Total > 0 {
-		for _, item := range searchResult.Hits {
-			if info, ok := memberMap[item.ID]; ok {
-				fmt.Println("She is:", info.SName)
-			} else {
-				fmt.Println("Meta info not found")
+	reader := bufio.NewReader(os.Stdin)
+
+	for {
+		inputQuery, _ := reader.ReadString('\n')
+		query := bleve.NewQueryStringQuery(inputQuery)
+		searchRequest := bleve.NewSearchRequest(query)
+		searchResult, _ := index.Search(searchRequest)
+		if searchResult.Total > 0 {
+			for _, item := range searchResult.Hits {
+				if info, ok := memberMap[item.ID]; ok {
+					fmt.Println("She is:", info.SName)
+				} else {
+					fmt.Println("Meta info not found")
+				}
 			}
 		}
 	}
