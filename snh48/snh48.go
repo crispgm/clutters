@@ -13,9 +13,9 @@ import (
 
 // Group ID
 const (
-	SNH48TopURL = "http://www.snh48.com/mobile/json/top-snh.json"
-	GNZ48TopURL = "http://www.snh48.com/mobile/json/top-gnz.json"
-	BEJ48TopURL = "http://www.snh48.com/mobile/json/top-bej.json"
+	SNH48TopURL = "https://h5.48.cn/resource/jsonp/allmembers.php?gid=10"
+	BEJ48TopURL = "https://h5.48.cn/resource/jsonp/allmembers.php?gid=20"
+	GNZ48TopURL = "https://h5.48.cn/resource/jsonp/allmembers.php?gid=30"
 )
 
 // MemberList ...
