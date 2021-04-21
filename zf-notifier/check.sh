@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-FILEPATH="./temp/zf"
 TEMP_PID="./temp/zfpid"
 ALL_PID="./temp/zfallpid"
 WEBHOOK="https://open.feishu.cn/open-apis/bot/v2/hook/29137695-aed9-44b4-a27b-ef8b967973e7"
@@ -8,13 +7,11 @@ WEBHOOK="https://open.feishu.cn/open-apis/bot/v2/hook/29137695-aed9-44b4-a27b-ef
 
 export PATH="/usr/local/bin:$PATH"
 
-wget -O $FILEPATH "https://www.zfrontier.com/shop/cate/140,25"
+PRODUCT_LIST=$(curl -X POST https://www.zfrontier.com/v2/shop/mchs \
+    -d 'menuId=14&sid=159&sort=new-desc&page=1' \
+    -H 'Content-Type: application/x-www-form-urlencoded' \
+    -H 'X-CSRF-TOKEN: 161880138885db4f43ff7e63b11a11c2a5b601d1' | jq '.data.list')
 
-if [ ! -f "$FILEPATH" ]; then
-    exit 1
-fi
-
-PRODUCT_LIST=$(rg "var data" $FILEPATH | awk 'BEGIN{FS="var data = "}{print $2}' | awk 'BEGIN{FS=";"}{print $1}' | jq '.mList')
 echo $PRODUCT_LIST | jq '.[].id' > $TEMP_PID
 if [ ! -f "$ALL_PID" ]; then
     cat $TEMP_PID >> $ALL_PID
