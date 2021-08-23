@@ -81,7 +81,7 @@ function sendNotification(item) {
     }),
   })
     .then(_result => {
-      console.log('Sent successfully');
+      console.log('sent successfully');
     })
     .catch(err => {
       console.error(err);
@@ -89,15 +89,19 @@ function sendNotification(item) {
 }
 
 (async () => {
+  console.log('loading data...')
   const fn = './temp/all.json';
   const allData = JSON.parse(fs.readFileSync(fn, 'utf8'));
+  console.log('fetching kbdfans...')
   const kbdData = await fetchKBDList();
+  console.log('fetching zfrontier...')
   const zfData = await fetchZFList();
+  console.log('walking and notifying...')
   for (const d of kbdData) {
     if (d.id in allData) {
-      console.log(`${d.id} existed`);
+      console.log(`item [${d.id}] existed`);
     } else {
-      console.log(`${d.id} pushed`);
+      console.log(`item [${d.id}] pushed`);
       allData[d.id] = d;
       sendNotification(d);
     }
@@ -111,5 +115,7 @@ function sendNotification(item) {
       sendNotification(d);
     }
   }
+  console.log('writing data...')
   fs.writeFileSync(fn, JSON.stringify(allData));
+  console.log('done.')
 })();
