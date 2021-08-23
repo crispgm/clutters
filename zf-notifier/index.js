@@ -91,8 +91,18 @@ function sendNotification(item) {
 (async () => {
   const fn = './temp/all.json';
   const allData = JSON.parse(fs.readFileSync(fn, 'utf8'));
-  const data = await fetchKBDList();
-  for (const d of data) {
+  const kbdData = await fetchKBDList();
+  const zfData = await fetchZFList();
+  for (const d of kbdData) {
+    if (d.id in allData) {
+      console.log(`${d.id} existed`);
+    } else {
+      console.log(`${d.id} pushed`);
+      allData[d.id] = d;
+      sendNotification(d);
+    }
+  }
+  for (const d of zfData) {
     if (d.id in allData) {
       console.log(`${d.id} existed`);
     } else {
