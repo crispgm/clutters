@@ -106,7 +106,7 @@ func main() {
 		if searchResult.Total > 0 {
 			for _, item := range searchResult.Hits {
 				if info, ok := memberMap[item.ID]; ok {
-					fmt.Println("She is:", info.SName)
+					fmt.Printf("She is: %s-%s\n", info.GroupName, info.SName)
 				} else {
 					fmt.Println("Meta info not found")
 				}
