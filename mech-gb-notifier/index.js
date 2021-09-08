@@ -58,6 +58,40 @@ async function fetchKBDList() {
   return data;
 }
 
+async function fetchGeekArkList() {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.setUserAgent(
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36',
+  );
+  await page.goto(
+    'https://www.geekark.com/product?&categorys=2&product_status=0,2',
+  );
+  await page.waitForSelector('.goodsBox');
+
+  const resultsSelector = '.goodsBox_item_box>a.tit';
+  const links = await page.evaluate(resultsSelector => {
+    const anchors = Array.from(document.querySelectorAll(resultsSelector));
+    return anchors.map(anchor => {
+      const href = anchor.href;
+      const id = href.split('/product/')[1];
+      const title = anchor.querySelector('.tit_title').textContent;
+      return {
+        id,
+        title,
+        href,
+      };
+    });
+  }, resultsSelector);
+  const data = [];
+  for (let d of links) {
+    data.push(d);
+  }
+
+  await browser.close();
+  return data;
+}
+
 function sendNotification(item) {
   const url = process.env.LARK_URL;
   const text = `${item.title}\n${item.href}`;
@@ -89,14 +123,16 @@ function sendNotification(item) {
 }
 
 (async () => {
-  console.log('loading data...')
+  console.log('loading data...');
   const fn = './temp/all.json';
   const allData = JSON.parse(fs.readFileSync(fn, 'utf8'));
-  console.log('fetching kbdfans...')
+  console.log('fetching kbdfans...');
   const kbdData = await fetchKBDList();
-  console.log('fetching zfrontier...')
+  console.log('fetching zfrontier...');
   const zfData = await fetchZFList();
-  console.log('walking and notifying...')
+  console.log('fetching geekark...');
+  const gaData = await fetchGeekArkList();
+  console.log('walking and notifying...');
   for (const d of kbdData) {
     if (d.id in allData) {
       console.log(`item [${d.id}] existed`);
@@ -115,7 +151,16 @@ function sendNotification(item) {
       sendNotification(d);
     }
   }
-  console.log('writing data...')
+  for (const d of gaData) {
+    if (d.id in allData) {
+      console.log(`${d.id} existed`);
+    } else {
+      console.log(`${d.id} pushed`);
+      allData[d.id] = d;
+      sendNotification(d);
+    }
+  }
+  console.log('writing data...');
   fs.writeFileSync(fn, JSON.stringify(allData));
-  console.log('done.')
+  console.log('done.');
 })();
