@@ -1,6 +1,8 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const fetch = require('node-fetch');
+const util = require('util');
+const {exec, spawn} = require('child_process');
 
 async function fetchZFList() {
   const browser = await puppeteer.launch();
@@ -122,44 +124,38 @@ function sendNotification(item) {
     });
 }
 
+function sendWechat(item) {
+  const content = `发现键圈新预售: ${item.title} ${item.href}`;
+  spawn('pbcopy').stdin.end(util.inspect(content));
+  exec('/usr/bin/osascript ./paste-to-wechat.scpt')
+}
+
 (async () => {
   console.log('loading data...');
   const fn = './temp/all.json';
   const allData = JSON.parse(fs.readFileSync(fn, 'utf8'));
+
   console.log('fetching kbdfans...');
   const kbdData = await fetchKBDList();
   console.log('fetching zfrontier...');
   const zfData = await fetchZFList();
   console.log('fetching geekark...');
   const gaData = await fetchGeekArkList();
+
+  const newData = [...kbdData, ...zfData, ...gaData];
+
   console.log('walking and notifying...');
-  for (const d of kbdData) {
+  for (const d of newData) {
     if (d.id in allData) {
       console.log(`item [${d.id}] existed`);
     } else {
       console.log(`item [${d.id}] pushed`);
       allData[d.id] = d;
       sendNotification(d);
+      // sendWechat(d);
     }
   }
-  for (const d of zfData) {
-    if (d.id in allData) {
-      console.log(`${d.id} existed`);
-    } else {
-      console.log(`${d.id} pushed`);
-      allData[d.id] = d;
-      sendNotification(d);
-    }
-  }
-  for (const d of gaData) {
-    if (d.id in allData) {
-      console.log(`${d.id} existed`);
-    } else {
-      console.log(`${d.id} pushed`);
-      allData[d.id] = d;
-      sendNotification(d);
-    }
-  }
+
   console.log('writing data...');
   fs.writeFileSync(fn, JSON.stringify(allData));
   console.log('done.');
