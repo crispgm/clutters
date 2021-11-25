@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const fetch = require('node-fetch');
+const {Headers} = require('node-fetch');
 const util = require('util');
 const {exec, spawn} = require('child_process');
 
@@ -94,7 +95,7 @@ async function fetchGeekArkList() {
   return data;
 }
 
-function sendNotification(item) {
+function sendToLark(item) {
   const url = process.env.LARK_URL;
   const text = `${item.title}\n${item.href}`;
 
@@ -124,10 +125,25 @@ function sendNotification(item) {
     });
 }
 
-function sendWechat(item) {
-  const content = `发现键圈新预售: ${item.title} ${item.href}`;
-  spawn('pbcopy').stdin.end(util.inspect(content));
-  exec('/usr/bin/osascript ./paste-to-wechat.scpt')
+function sendToDiscord(item) {
+  const url = process.env.DISCORD_URL;
+  const text = `Found new GB: ${item.title}\n${item.href}`;
+
+  const headers = new Headers();
+  headers.append('Content-Type', 'application/json');
+  fetch(url, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      content: text,
+    }),
+  })
+    .then(_result => {
+      console.log('sent successfully');
+    })
+    .catch(err => {
+      console.error(err);
+    });
 }
 
 (async () => {
@@ -151,8 +167,8 @@ function sendWechat(item) {
     } else {
       console.log(`item [${d.id}] pushed`);
       allData[d.id] = d;
-      sendNotification(d);
-      // sendWechat(d);
+      sendToLark(d);
+      sendToDiscord(d);
     }
   }
 
