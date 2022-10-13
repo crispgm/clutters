@@ -17,15 +17,13 @@ require (
 	github.com/blevesearch/zap/v14 v14.0.5 // indirect
 	github.com/blevesearch/zap/v15 v15.0.3 // indirect
 	github.com/couchbase/vellum v1.0.2 // indirect
-	github.com/glycerine/go-unsnap-stream v0.0.0-20210130063903-47dfef350d96 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/mschoch/smat v0.2.0 // indirect
-	github.com/philhofer/fwd v1.1.1 // indirect
 	github.com/steveyen/gtreap v0.1.0 // indirect
-	github.com/tinylib/msgp v1.1.6 // indirect
 	github.com/willf/bitset v1.1.11 // indirect
 	go.etcd.io/bbolt v1.3.6 // indirect
 	golang.org/x/sys v0.0.0-20220624220833-87e55d714810 // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 )
